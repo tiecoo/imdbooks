@@ -1,12 +1,5 @@
 import React, { Component } from "react";
-import {
-  StyleSheet,
-  View,
-  ActivityIndicator,
-  FlatList,
-  Text,
-  TouchableOpacity
-} from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 export class Authors extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
@@ -22,13 +15,13 @@ export class Authors extends Component {
       dataSource: []
     };
   }
-  componentDidMount() {
-    fetch("https://swapi.co/api/people/")
+  componentWillMount() {
+    fetch("http://192.168.0.107:8000/authors")
       .then(response => response.json())
-      .then((responseJson) => {        
+      .then((responseJson) => {
         this.setState({
           loading: false,
-          dataSource: responseJson.results
+          dataSource: responseJson
         })
       })
       .catch(error => console.log(error))
@@ -46,7 +39,9 @@ export class Authors extends Component {
   renderItem = (data) =>
     <TouchableOpacity style={styles.list}>
     <Text >Nome: {data.item.name}</Text>
-    <Text >{data.item.gender}</Text></TouchableOpacity>
+    <Text >Data de nascimento: {data.item.birth_date}</Text>
+    <Text >ID: {data.item.id}</Text>
+    </TouchableOpacity>
   render() {
     if (this.state.loading) {
       return (

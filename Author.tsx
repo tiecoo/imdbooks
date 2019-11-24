@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 export class Authors extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
@@ -12,11 +12,17 @@ export class Authors extends Component {
     super(props);
     this.state = {
       loading: true,
-      dataSource: []
+      dataSource: [],
+      modalVisible: false,
+      currentAuthor: []
     };
   }
+
+  setModalVisible(visible) {
+    this.setState({modalVisible: visible});
+  }
   componentWillMount() {
-    fetch("http://192.168.0.107:8000/authors")
+    fetch("http://192.168.86.10:8000/authors")
       .then(response => response.json())
       .then((responseJson) => {
         this.setState({
@@ -26,6 +32,7 @@ export class Authors extends Component {
       })
       .catch(error => console.log(error))
   }
+  
   FlatListItemSeparator = () => {
     return (
       <View style={{
@@ -37,11 +44,15 @@ export class Authors extends Component {
     );
   }
   renderItem = (data) =>
-    <TouchableOpacity style={styles.list}>
+    <TouchableOpacity style={styles.list} onPress={() => {
+      this.setModalVisible(true);
+      this.setState({
+        currentAuthor: data.item
+      })
+    }}>
     <Text >Nome: {data.item.name}</Text>
-    <Text >Data de nascimento: {data.item.birth_date}</Text>
-    <Text >ID: {data.item.id}</Text>
     </TouchableOpacity>
+
   render() {
     if (this.state.loading) {
       return (
@@ -57,6 +68,23 @@ export class Authors extends Component {
           ItemSeparatorComponent={this.FlatListItemSeparator}
           renderItem={item => this.renderItem(item)}
         />
+        <View style={{marginTop: 22}}>
+        <Modal
+          animationType="fade"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            this.setModalVisible(!this.state.modalVisible);
+          }}>
+          <View style={{marginTop: 22}}>
+            <View style={{justifyContent: "center", alignItems: "center"}}>
+            <Text >Nome: {this.state.currentAuthor.name}</Text>
+            <Text >Data de nascimento: {this.state.currentAuthor.birth_date}</Text>
+            <Image style={{width:250, height: 250}} source={{uri: this.state.currentAuthor.thumbnail_url}}/>
+              </View>
+            </View>
+          </Modal>
+        </View>
       </View>
     )
   }
